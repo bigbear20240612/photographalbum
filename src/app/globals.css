@@ -1,0 +1,139 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@600;700&display=swap');
+
+@layer base {
+  * {
+    @apply border-border-light;
+  }
+
+  body {
+    @apply bg-soft-white text-warm-gray font-sans antialiased;
+  }
+
+  h1, h2 {
+    @apply font-serif;
+  }
+}
+
+@layer components {
+  /* 玻璃拟态效果 */
+  .glass-light {
+    @apply bg-soft-white/75 backdrop-blur-xl backdrop-saturate-150 border border-border-light/40 shadow-glass-md;
+  }
+
+  .glass-dark {
+    @apply bg-deep-charcoal/60 backdrop-blur-xl backdrop-saturate-150 border border-white/10 shadow-glass-md;
+  }
+
+  .glass-warm {
+    @apply bg-warm-beige/80 backdrop-blur-lg backdrop-saturate-150 border border-terra-cotta/20 shadow-glass-md;
+  }
+
+  .glass-navbar {
+    @apply bg-white/70 backdrop-blur-lg backdrop-saturate-[180%] border-b border-border-light/30 shadow-glass-sm;
+  }
+
+  /* 按钮基础样式 */
+  .btn {
+    @apply inline-flex items-center justify-center rounded-xl font-medium transition-all duration-300;
+  }
+
+  /* 卡片基础样式 */
+  .card {
+    @apply rounded-2xl overflow-hidden transition-all duration-300;
+  }
+}
+
+@layer utilities {
+  /* 文本截断 */
+  .text-truncate {
+    @apply overflow-hidden text-ellipsis whitespace-nowrap;
+  }
+
+  .text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .text-truncate-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* 滚动条样式 */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* 动画关键帧 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-slideDown {
+  animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-zoomIn {
+  animation: zoomIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}

@@ -1,0 +1,277 @@
+// ========================================
+// 摄影作品展示平台 - Prisma Schema (Production)
+// ========================================
+//
+// 数据库：PostgreSQL (生产环境) / SQLite (开发环境)
+// ORM：Prisma
+// 版本：V1.5
+//
+// ========================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ========================================
+// 用户模型
+// ========================================
+
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  username        String    @unique
+  passwordHash    String    @map("password_hash")
+
+  // 个人资料
+  avatarUrl       String?   @map("avatar_url")
+  displayName     String?   @map("display_name")
+  bio             String?
+  location        String?
+  websiteUrl      String?   @map("website_url")
+  instagramUrl    String?   @map("instagram_url")
+  weiboUrl        String?   @map("weibo_url")
+  photographyTags String?   @map("photography_tags") // JSON string
+
+  // 账户状态
+  emailVerified   Boolean   @default(false) @map("email_verified")
+  status          String    @default("ACTIVE") // ACTIVE, INACTIVE, SUSPENDED
+  role            String    @default("USER") // USER, ADMIN
+
+  // 时间戳
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  // 关系
+  albums          Album[]
+  photos          Photo[]
+  sessions        Session[]
+  accounts        Account[]
+  likes           Like[]
+  comments        Comment[]
+  followers       Follow[]       @relation("Following")
+  following       Follow[]       @relation("Follower")
+  notifications   Notification[]
+
+  @@map("users")
+}
+
+// ========================================
+// 专辑模型
+// ========================================
+
+model Album {
+  id                  String      @id @default(cuid())
+  userId              String      @map("user_id")
+
+  // 基本信息
+  title               String
+  description         String?
+  coverPhotoId        String?     @map("cover_photo_id")
+
+  // 拍摄信息
+  shootDate           DateTime?   @map("shoot_date")
+  shootDateRangeStart DateTime?   @map("shoot_date_range_start")
+  shootDateRangeEnd   DateTime?   @map("shoot_date_range_end")
+
+  // 分类和标签
+  categoryTags        String?     @map("category_tags") // JSON string
+
+  // 统计信息
+  photoCount          Int         @default(0) @map("photo_count")
+
+  // 排序和状态
+  sortOrder           Int         @default(0) @map("sort_order")
+  status              String      @default("DRAFT") // DRAFT, PUBLISHED
+
+  // 时间戳
+  createdAt           DateTime    @default(now()) @map("created_at")
+  updatedAt           DateTime    @updatedAt @map("updated_at")
+
+  // 关系
+  user                User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  photos              Photo[]     @relation("AlbumPhotos")
+
+  @@map("albums")
+}
+
+// ========================================
+// 照片模型
+// ========================================
+
+model Photo {
+  id              String    @id @default(cuid())
+  albumId         String    @map("album_id")
+  userId          String    @map("user_id")
+
+  // 基本信息
+  title           String?
+  description     String?
+
+  // 图片URL（不同尺寸）
+  originalUrl     String    @map("original_url")
+  largeUrl        String    @map("large_url")
+  mediumUrl       String    @map("medium_url")
+  thumbnailUrl    String    @map("thumbnail_url")
+
+  // 图片元数据
+  width           Int
+  height          Int
+  fileSize        Int       @map("file_size")
+  mimeType        String    @map("mime_type")
+
+  // EXIF信息
+  exifData        String?   @map("exif_data") // JSON string
+  cameraModel     String?   @map("camera_model")
+  lensModel       String?   @map("lens_model")
+  iso             Int?
+  aperture        String?
+  shutterSpeed    String?   @map("shutter_speed")
+  focalLength     String?   @map("focal_length")
+  shootDate       DateTime? @map("shoot_date")
+
+  // 位置和分类
+  location        String?
+  categoryTag     String?   @map("category_tag")
+
+  // 排序
+  sortOrder       Int       @default(0) @map("sort_order")
+
+  // 时间戳
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  // 关系
+  album           Album     @relation("AlbumPhotos", fields: [albumId], references: [id], onDelete: Cascade)
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes           Like[]
+  comments        Comment[]
+
+  @@map("photos")
+}
+
+// ========================================
+// 分类模型（预设数据）
+// ========================================
+
+model Category {
+  id         Int      @id @default(autoincrement())
+  nameZh     String   @map("name_zh")
+  nameEn     String   @map("name_en")
+  slug       String   @unique
+  icon       String?
+  sortOrder  Int      @default(0) @map("sort_order")
+
+  @@map("categories")
+}
+
+// ========================================
+// NextAuth.js 模型
+// ========================================
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ========================================
+// 社交功能模型 (V1.2)
+// ========================================
+
+model Like {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  photoId   String   @map("photo_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  photo Photo @relation(fields: [photoId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, photoId])
+  @@map("likes")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  photoId   String   @map("photo_id")
+  userId    String   @map("user_id")
+  content   String
+  parentId  String?  @map("parent_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  photo   Photo     @relation(fields: [photoId], references: [id], onDelete: Cascade)
+  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent  Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies Comment[] @relation("CommentReplies")
+
+  @@map("comments")
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String   @map("follower_id")
+  followingId String   @map("following_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  follower  User @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@map("follows")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  type      String   // LIKE, COMMENT, FOLLOW, SYSTEM
+  title     String
+  content   String
+  data      String?  // JSON string
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
