@@ -25,7 +25,27 @@ Value: Dl20scUf5VpRDBmxlqEPtlqv/+iJd8U5E+65qLqKf6I=
 
 ### 🚨 重要：数据库 URL 配置
 
-**如果你使用的是 Vercel Postgres（集成方式）：**
+**检测你使用的数据库类型：**
+
+#### 选项 A: Prisma Accelerate 数据库 ⚡（推荐）
+
+如果你的 URL 包含 `prisma+postgres://accelerate.prisma-data.net`，说明使用的是 Prisma Accelerate。
+
+配置方式：
+| Key | Value | 说明 |
+|-----|-------|------|
+| `DATABASE_URL` | `prisma+postgres://accelerate.prisma-data.net/?api_key=xxx` | Accelerate URL（包含缓存和连接池）|
+| `DIRECT_URL` | `postgres://user:pass@db.prisma.io:5432/postgres?sslmode=require` | 直连 URL（用于迁移）|
+
+✅ **优势：** 全球边缘缓存、连接池管理、查询加速
+
+📖 **详细配置指南：** 参见 `docs/PRISMA_ACCELERATE_CONFIG.md`
+
+---
+
+#### 选项 B: Vercel Postgres 数据库
+
+如果你使用的是 Vercel Postgres（集成方式）：
 
 Vercel Postgres 会自动创建以下环境变量，你**不需要手动添加** DATABASE_URL：
 - `POSTGRES_URL`
@@ -48,20 +68,23 @@ Vercel Postgres 会自动创建以下环境变量，你**不需要手动添加**
 
 ### 必需的环境变量（完整列表）
 
+#### 使用 Prisma Accelerate（根据你的配置）：
+
 | Key | Value | Environments |
 |-----|-------|--------------|
-| `DATABASE_URL` | `postgres://username:password@host/database?pgbouncer=true&connect_timeout=15` | ✅ Production, ✅ Preview |
-| `DIRECT_URL` | `postgres://username:password@host/database?connect_timeout=15` | ✅ Production, ✅ Preview |
+| `DATABASE_URL` | `prisma+postgres://accelerate.prisma-data.net/?api_key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` | ✅ Production, ✅ Preview |
+| `DIRECT_URL` | `postgres://997367aed2338ea5e93f46237b1dda196e076b1346e16d88c94123ed4133e655:sk_kqZ8moCdY5yNjkGeW9zyw@db.prisma.io:5432/postgres?sslmode=require` | ✅ Production, ✅ Preview |
 | `NEXTAUTH_SECRET` | `Dl20scUf5VpRDBmxlqEPtlqv/+iJd8U5E+65qLqKf6I=` | ✅ Production, ✅ Preview |
 | `NEXTAUTH_URL` | `https://photographalbum.vercel.app` | ✅ Production only |
 | `CLOUDINARY_CLOUD_NAME` | `dmolmq6dr` | ✅ Production, ✅ Preview |
 | `CLOUDINARY_API_KEY` | `639768862499573` | ✅ Production, ✅ Preview |
 | `CLOUDINARY_API_SECRET` | `jc1rYAQcZkt1ndtWrAdZyUgdzy8` | ✅ Production, ✅ Preview |
 
-⚠️ **注意：**
-- 不要使用 `${POSTGRES_PRISMA_URL}` 这样的语法，要使用实际的 URL 值
-- DATABASE_URL 应该是包含 `?pgbouncer=true` 的连接池 URL
-- DIRECT_URL 应该是不包含 `?pgbouncer=true` 的直连 URL
+⚠️ **重要说明：**
+- ❌ 不要使用 `${POSTGRES_PRISMA_URL}` 这样的占位符语法
+- ✅ 使用你提供的完整 URL 值
+- ✅ DATABASE_URL 使用 Accelerate URL（以 `prisma+postgres://` 开头）
+- ✅ DIRECT_URL 使用直连 URL（以 `postgres://` 开头，用于迁移）
 
 ### Preview 环境的 NEXTAUTH_URL
 
