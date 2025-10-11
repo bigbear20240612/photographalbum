@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 import Container from '@/components/layout/Container';
 import Button from '@/components/ui/Button';
@@ -16,12 +16,9 @@ interface UploadedPhoto {
   description: string;
 }
 
-export default function UploadPhotosPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = use(params);
+export default function UploadPhotosPage() {
+  const params = useParams();
+  const id = params.id as string;
   const router = useRouter();
 
   const [album, setAlbum] = useState<Album | null>(null);
