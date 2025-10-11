@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, use } from 'react';
+import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import Container from '@/components/layout/Container';
 import Button from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { mockAlbums } from '@/lib/mockData';
+import { albumApi } from '@/lib/apiService';
+import type { Album } from '@/types';
 
 const CATEGORIES = [
   '人像摄影',
@@ -30,16 +32,50 @@ export default function EditAlbumPage({
   const { id } = use(params);
   const router = useRouter();
 
-  // 获取专辑数据（实际应从API获取）
-  const album = mockAlbums.find((a) => a.id === id);
-
+  const [album, setAlbum] = useState<Album | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [formData, setFormData] = useState({
-    title: album?.title || '',
-    description: album?.description || '',
-    category: '风光摄影', // 模拟数据
+    title: '',
+    description: '',
+    category: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // 加载专辑数据
+  useEffect(() => {
+    const loadAlbum = async () => {
+      try {
+        const response = await albumApi.getAlbumById(id);
+        setAlbum(response.album);
+        setFormData({
+          title: response.album.title,
+          description: response.album.description || '',
+          category: response.album.categoryTags?.[0] || '',
+        });
+      } catch (error: any) {
+        console.error('加载专辑失败:', error);
+        toast.error('加载专辑失败');
+        router.push('/dashboard');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadAlbum();
+  }, [id, router]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-soft-white pt-24 pb-16">
+        <Container>
+          <div className="text-center py-16">
+            <p className="text-warm-gray">加载中...</p>
+          </div>
+        </Container>
+      </div>
+    );
+  }
 
   if (!album) {
     return (
@@ -62,21 +98,35 @@ export default function EditAlbumPage({
     e.preventDefault();
     setIsSubmitting(true);
 
-    // 模拟API请求
-    setTimeout(() => {
-      console.log('更新专辑:', formData);
-      alert('专辑更新成功！（这是模拟功能，实际需要连接后端API）');
+    try {
+      // 调用真实的 API 更新专辑
+      await albumApi.updateAlbum(id, {
+        title: formData.title,
+        description: formData.description || undefined,
+        categoryTags: formData.category ? [formData.category] : [],
+      });
+
+      toast.success('专辑更新成功！');
       router.push('/dashboard');
-    }, 1000);
+    } catch (error: any) {
+      console.error('更新专辑失败:', error);
+      toast.error(error.message || '更新专辑失败，请稍后重试');
+      setIsSubmitting(false);
+    }
   };
 
   const handleDelete = async () => {
-    // 模拟删除API请求
-    setTimeout(() => {
-      console.log('删除专辑:', id);
-      alert('专辑删除成功！（这是模拟功能，实际需要连接后端API）');
+    try {
+      // 调用真实的 API 删除专辑
+      await albumApi.deleteAlbum(id);
+
+      toast.success('专辑删除成功！');
       router.push('/dashboard');
-    }, 500);
+    } catch (error: any) {
+      console.error('删除专辑失败:', error);
+      toast.error(error.message || '删除专辑失败，请稍后重试');
+      setShowDeleteConfirm(false);
+    }
   };
 
   const handleChange = (

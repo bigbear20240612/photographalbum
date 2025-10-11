@@ -1,18 +1,72 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 import Container from '@/components/layout/Container';
 import Button from '@/components/ui/Button';
 import { AlbumCard } from '@/components/ui/Card';
-import { mockAlbums, mockUsers } from '@/lib/mockData';
+import { albumApi, userApi } from '@/lib/apiService';
+import type { Album, User } from '@/types';
 
 export default function DashboardPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'albums' | 'photos'>('albums');
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [userAlbums, setUserAlbums] = useState<Album[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // 模拟当前用户（实际应从session获取）
-  const currentUser = mockUsers[0];
-  const userAlbums = mockAlbums.filter(album => album.userId === currentUser.id);
+  // 检查登录状态
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login');
+    }
+  }, [status, router]);
+
+  // 加载用户信息和专辑
+  useEffect(() => {
+    if (status === 'authenticated') {
+      loadUserData();
+    }
+  }, [status]);
+
+  const loadUserData = async () => {
+    try {
+      // 获取当前用户信息
+      const userResponse = await userApi.getCurrentUser();
+      setCurrentUser(userResponse.user);
+
+      // 获取用户的专辑列表
+      const albumsResponse = await albumApi.getAlbums({
+        username: userResponse.user.username,
+      });
+      setUserAlbums(albumsResponse.albums);
+    } catch (error: any) {
+      console.error('加载数据失败:', error);
+      toast.error('加载数据失败');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (status === 'loading' || isLoading) {
+    return (
+      <div className="min-h-screen bg-soft-white pt-24 pb-16">
+        <Container>
+          <div className="text-center py-16">
+            <p className="text-warm-gray">加载中...</p>
+          </div>
+        </Container>
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-soft-white pt-24 pb-16">

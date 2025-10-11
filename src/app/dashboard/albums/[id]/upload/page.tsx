@@ -1,10 +1,12 @@
 'use client';
 
-import { useState, use } from 'react';
+import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import Container from '@/components/layout/Container';
 import Button from '@/components/ui/Button';
-import { mockAlbums } from '@/lib/mockData';
+import { albumApi, photoApi } from '@/lib/apiService';
+import type { Album } from '@/types';
 
 interface UploadedPhoto {
   id: string;
@@ -21,11 +23,42 @@ export default function UploadPhotosPage({
 }) {
   const { id } = use(params);
   const router = useRouter();
-  const album = mockAlbums.find((a) => a.id === id);
 
+  const [album, setAlbum] = useState<Album | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [photos, setPhotos] = useState<UploadedPhoto[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+
+  // 加载专辑数据
+  useEffect(() => {
+    const loadAlbum = async () => {
+      try {
+        const response = await albumApi.getAlbumById(id);
+        setAlbum(response.album);
+      } catch (error: any) {
+        console.error('加载专辑失败:', error);
+        toast.error('加载专辑失败');
+        router.push('/dashboard');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadAlbum();
+  }, [id, router]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-soft-white pt-24 pb-16">
+        <Container>
+          <div className="text-center py-16">
+            <p className="text-warm-gray">加载中...</p>
+          </div>
+        </Container>
+      </div>
+    );
+  }
 
   if (!album) {
     return (
@@ -93,18 +126,43 @@ export default function UploadPhotosPage({
 
   const handleUpload = async () => {
     if (photos.length === 0) {
-      alert('请先选择照片');
+      toast.error('请先选择照片');
       return;
     }
 
     setIsUploading(true);
 
-    // 模拟上传
-    setTimeout(() => {
-      console.log('上传照片:', photos);
-      alert(`成功上传 ${photos.length} 张照片！（这是模拟功能，实际需要连接后端API）`);
-      router.push(`/photographer/john_photographer/album/${id}`);
-    }, 2000);
+    try {
+      // 准备上传数据
+      const files = photos.map(p => p.file);
+      const metadata = photos.map(p => ({
+        title: p.title,
+        description: p.description || undefined,
+      }));
+
+      // 调用真实的 API 上传照片
+      const response = await photoApi.uploadPhotos({
+        albumId: id,
+        files,
+        metadata,
+      });
+
+      const successCount = response.results.filter(r => r.success).length;
+      const failCount = response.results.length - successCount;
+
+      if (failCount > 0) {
+        toast.error(`${successCount} 张照片上传成功，${failCount} 张失败`);
+      } else {
+        toast.success(`成功上传 ${successCount} 张照片！`);
+      }
+
+      // 跳转到专辑详情页
+      router.push(`/dashboard`);
+    } catch (error: any) {
+      console.error('上传照片失败:', error);
+      toast.error(error.message || '上传照片失败，请稍后重试');
+      setIsUploading(false);
+    }
   };
 
   return (

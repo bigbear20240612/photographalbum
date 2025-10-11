@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import Container from '@/components/layout/Container';
 import Button from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { albumApi } from '@/lib/apiService';
 
 const CATEGORIES = [
   '人像摄影',
@@ -34,12 +36,24 @@ export default function CreateAlbumPage() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // 模拟API请求
-    setTimeout(() => {
-      console.log('创建专辑:', formData);
-      alert('专辑创建成功！（这是模拟功能，实际需要连接后端API）');
-      router.push('/dashboard');
-    }, 1000);
+    try {
+      // 调用真实的 API 创建专辑
+      const response = await albumApi.createAlbum({
+        title: formData.title,
+        description: formData.description || undefined,
+        categoryTags: formData.category ? [formData.category] : [],
+        status: 'PUBLISHED',
+      });
+
+      toast.success('专辑创建成功！');
+
+      // 跳转到专辑上传照片页面
+      router.push(`/dashboard/albums/${response.album.id}/upload`);
+    } catch (error: any) {
+      console.error('创建专辑失败:', error);
+      toast.error(error.message || '创建专辑失败，请稍后重试');
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (
