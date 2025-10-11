@@ -85,18 +85,28 @@ export default function AlbumPage() {
             )}
 
             <div className="flex items-center justify-center gap-6 text-sm text-light-gray">
-              {album.categoryTags && album.categoryTags.length > 0 && (
-                <div className="flex items-center gap-2">
-                  {album.categoryTags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="px-3 py-1 bg-terra-cotta/10 text-terra-cotta rounded-full"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
+              {album.categoryTags && (() => {
+                try {
+                  const tags = JSON.parse(album.categoryTags);
+                  if (Array.isArray(tags) && tags.length > 0) {
+                    return (
+                      <div className="flex items-center gap-2">
+                        {tags.map((tag, index) => (
+                          <span
+                            key={index}
+                            className="px-3 py-1 bg-terra-cotta/10 text-terra-cotta rounded-full"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    );
+                  }
+                } catch {
+                  return null;
+                }
+                return null;
+              })()}
               <span>{photos.length} 张照片</span>
               <span>{formatDate(album.createdAt)}</span>
             </div>
