@@ -48,10 +48,22 @@ export default function EditAlbumPage({
       try {
         const response = await albumApi.getAlbumById(id);
         setAlbum(response.album);
+
+        // Parse categoryTags from JSON string
+        let categoryTag = '';
+        if (response.album.categoryTags) {
+          try {
+            const tags = JSON.parse(response.album.categoryTags);
+            categoryTag = Array.isArray(tags) && tags.length > 0 ? tags[0] : '';
+          } catch {
+            categoryTag = '';
+          }
+        }
+
         setFormData({
           title: response.album.title,
           description: response.album.description || '',
-          category: response.album.categoryTags?.[0] || '',
+          category: categoryTag,
         });
       } catch (error: any) {
         console.error('加载专辑失败:', error);
@@ -103,7 +115,7 @@ export default function EditAlbumPage({
       await albumApi.updateAlbum(id, {
         title: formData.title,
         description: formData.description || undefined,
-        categoryTags: formData.category ? [formData.category] : [],
+        categoryTags: formData.category ? JSON.stringify([formData.category]) : undefined,
       });
 
       toast.success('专辑更新成功！');

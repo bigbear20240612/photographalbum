@@ -22,7 +22,7 @@ export interface Album {
   description?: string;
   coverPhotoUrl?: string;
   photoCount: number;
-  categoryTags?: string[];
+  categoryTags?: string; // JSON string, not array
   createdAt: Date;
   updatedAt: Date;
 }

@@ -60,7 +60,7 @@ export const userApi = {
 export interface CreateAlbumData {
   title: string;
   description?: string;
-  categoryTags?: string[];
+  categoryTags?: string; // JSON string, not array
   shootDate?: string;
   shootDateRangeStart?: string;
   shootDateRangeEnd?: string;
