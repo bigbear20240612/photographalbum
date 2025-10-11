@@ -31,6 +31,7 @@
     "pusher-js": "^8.4.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-hot-toast": "^2.6.0",
     "react-masonry-css": "^1.0.16",
     "zustand": "^5.0.8"
   },

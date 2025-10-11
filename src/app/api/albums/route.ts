@@ -42,12 +42,6 @@ export async function GET(request: NextRequest) {
               avatarUrl: true,
             },
           },
-          coverPhoto: {
-            select: {
-              thumbnailUrl: true,
-              mediumUrl: true,
-            },
-          },
           _count: {
             select: {
               photos: true,
