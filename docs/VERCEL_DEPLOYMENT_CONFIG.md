@@ -4,8 +4,56 @@
 **版本:** V1.4 Production Ready
 **框架:** Next.js 14 (App Router)
 **数据库:** PostgreSQL (Vercel Postgres)
-**更新时间:** 2025-10-10
+**更新时间:** 2025-10-11
 **仓库地址:** https://github.com/bigbear20240612/photographalbum.git
+
+---
+
+## 最新更新 (2025-10-11)
+
+### ✅ 已完成的修复
+
+1. **categoryTags 类型错误修复** (Commit: `7be5de4`)
+   - ❌ 旧问题：`PrismaClientValidationError: Expected String or Null, provided (String)`
+   - 🔍 根本原因：Prisma schema 定义 `categoryTags String?` (JSON字符串)，但前端发送的是数组 `["运动摄影"]`
+   - ✅ 解决方案：将前端发送的数组改为 `JSON.stringify([category])` 格式
+   - 📝 文件：`src/app/dashboard/albums/create/page.tsx:44`
+   - 🎯 效果：修复了创建专辑时的 500 Internal Server Error
+
+2. **前端仪表板连接真实 API** (Commit: `5c28a61`, `4fac306`)
+   - ✅ 连接所有仪表板页面到真实后端 API
+   - ✅ 移除所有模拟功能和 setTimeout 代码
+   - ✅ 实现完整的专辑创建、编辑、删除功能
+   - ✅ 实现照片上传功能
+
+3. **Dynamic Server Usage 警告处理** (Commit: `d4a6d97`)
+   - ✅ 为管理员 API 路由添加 `export const dynamic = 'force-dynamic'`
+   - ✅ 优化 Serverless Function 配置
+
+### 📌 待完成任务
+
+- ⏳ **推送代码到 GitHub**：由于网络问题，commit `7be5de4` 尚未推送
+- ⏳ **Vercel 自动部署**：等待代码推送后触发部署
+- ⏳ **测试修复效果**：在 https://photographalbum.vercel.app 测试专辑创建功能
+
+### 🔧 技术细节
+
+**修复前的错误：**
+```typescript
+// 前端发送：
+categoryTags: formData.category ? [formData.category] : []
+// 结果：["运动摄影"] ❌ Array
+
+// Prisma 期望：
+categoryTags String? // JSON string
+```
+
+**修复后的代码：**
+```typescript
+// 前端发送：
+categoryTags: formData.category ? JSON.stringify([formData.category]) : undefined
+// 结果："[\"运动摄影\"]" ✅ JSON String
+```
 
 ---
 
