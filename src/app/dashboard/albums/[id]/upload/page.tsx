@@ -35,6 +35,7 @@ export default function UploadPhotosPage({
     const loadAlbum = async () => {
       try {
         const response = await albumApi.getAlbumById(id);
+        console.log('Loaded album:', response.album); // Debug log
         setAlbum(response.album);
       } catch (error: any) {
         console.error('加载专辑失败:', error);
@@ -45,7 +46,9 @@ export default function UploadPhotosPage({
       }
     };
 
-    loadAlbum();
+    if (id) {
+      loadAlbum();
+    }
   }, [id, router]);
 
   if (isLoading) {
@@ -175,7 +178,7 @@ export default function UploadPhotosPage({
               上传照片
             </h1>
             <p className="text-warm-gray">
-              上传照片到专辑 &quot;{album.title}&quot;
+              上传照片到专辑 &quot;{album?.title || '未命名专辑'}&quot;
             </p>
           </div>
 
