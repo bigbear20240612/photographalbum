@@ -4,6 +4,9 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+// 标记为动态路由，避免静态生成警告
+export const dynamic = 'force-dynamic';
+
 /**
  * 获取用户列表 (仅管理员)
  * GET /api/admin/users

@@ -4,6 +4,9 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+// 标记为动态路由，避免静态生成警告
+export const dynamic = 'force-dynamic';
+
 /**
  * 获取专辑列表 (管理员内容审核)
  * GET /api/admin/albums
