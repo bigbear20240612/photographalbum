@@ -158,7 +158,7 @@ export default function HomePage() {
                   <AlbumCard
                     coverUrl={album.coverPhotoUrl || ''}
                     title={album.title}
-                    photoCount={album.photoCount}
+                    photoCount={album.photoCount ?? 0}
                   />
                 </Link>
               );

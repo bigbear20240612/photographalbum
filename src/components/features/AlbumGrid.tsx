@@ -27,7 +27,7 @@ export default function AlbumGrid({ albums, onAlbumClick }: AlbumGridProps) {
           <AlbumCard
             coverUrl={album.coverPhotoUrl || ''}
             title={album.title}
-            photoCount={album.photoCount}
+            photoCount={album.photoCount ?? 0}
             onClick={() => onAlbumClick?.(album.id)}
           />
         </div>
