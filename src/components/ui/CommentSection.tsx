@@ -152,12 +152,12 @@ export default function CommentSection({ photoId, className = '' }: CommentSecti
                   rows={3}
                 />
                 <div className="flex gap-2">
-                  <Button size="sm" onClick={() => handleUpdateComment(comment.id)}>
+                  <Button size="small" onClick={() => handleUpdateComment(comment.id)}>
                     保存
                   </Button>
                   <Button
-                    size="sm"
-                    variant="outline"
+                    size="small"
+                    variant="secondary"
                     onClick={() => {
                       setEditingId(null);
                       setEditContent('');

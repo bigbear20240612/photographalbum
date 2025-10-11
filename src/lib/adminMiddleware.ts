@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 /**
  * 管理员权限验证中间件
@@ -12,7 +9,7 @@ const prisma = new PrismaClient();
 export async function requireAdmin(request: NextRequest) {
   try {
     // 获取当前会话
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user?.id) {
       return NextResponse.json(
@@ -50,7 +47,7 @@ export async function requireAdmin(request: NextRequest) {
  */
 export async function isAdmin(): Promise<boolean> {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user?.id) {
       return false;

@@ -202,7 +202,7 @@ export default function NotificationsPage() {
             </button>
 
             {unreadCount > 0 && (
-              <Button size="sm" variant="outline" onClick={handleMarkAllAsRead}>
+              <Button size="small" variant="secondary" onClick={handleMarkAllAsRead}>
                 全部标记已读
               </Button>
             )}

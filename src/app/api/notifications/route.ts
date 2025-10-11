@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 // GET /api/notifications - 获取通知列表
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user?.id) {
       return NextResponse.json(
@@ -70,7 +67,7 @@ export async function GET(request: NextRequest) {
 // PUT /api/notifications - 批量标记为已读
 export async function PUT(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user?.id) {
       return NextResponse.json(
@@ -116,7 +113,7 @@ export async function PUT(request: NextRequest) {
 // DELETE /api/notifications - 批量删除通知
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user?.id) {
       return NextResponse.json(

@@ -1,5 +1,5 @@
 import { get, post, put, del, uploadFormData } from './api';
-import type { User, Album, Photo, Category } from '@/types';
+import type { User, Album, Photo } from '@/types';
 
 // ==================== 认证相关 ====================
 
@@ -194,7 +194,7 @@ export const photoApi = {
 export const categoryApi = {
   // 获取所有分类
   getCategories: () =>
-    get<{ categories: Category[] }>('/categories'),
+    get<{ categories: any[] }>('/categories'),
 };
 
 // ==================== 社交功能相关 ====================

@@ -5,12 +5,12 @@ import { useRouter } from 'next/navigation';
 import Container from '@/components/layout/Container';
 import AlbumGrid from '@/components/features/AlbumGrid';
 import { albumApi, categoryApi } from '@/lib/apiService';
-import type { Album, Category } from '@/types';
+import type { Album } from '@/types';
 
 export default function DiscoverPage() {
   const router = useRouter();
   const [albums, setAlbums] = useState<Album[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'latest' | 'popular'>('latest');
@@ -158,7 +158,7 @@ export default function DiscoverPage() {
               // 需要找到专辑作者的username
               const username = (album as any).user?.username;
               if (username) {
-                router.push(`/photographer/${username}/album/${album.id}`);
+                router.push(`/photographer/${username}/album/${(album as any).id}`);
               }
             }}
           />

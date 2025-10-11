@@ -4,7 +4,7 @@ import { useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Container from '@/components/layout/Container';
 import Button from '@/components/ui/Button';
-import Input from '@/components/ui/Input';
+import { Input } from '@/components/ui/Input';
 import { mockAlbums } from '@/lib/mockData';
 
 const CATEGORIES = [
