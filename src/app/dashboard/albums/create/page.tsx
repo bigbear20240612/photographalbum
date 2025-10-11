@@ -41,7 +41,7 @@ export default function CreateAlbumPage() {
       const response = await albumApi.createAlbum({
         title: formData.title,
         description: formData.description || undefined,
-        categoryTags: formData.category ? [formData.category] : [],
+        categoryTags: formData.category ? JSON.stringify([formData.category]) : undefined,
         status: 'PUBLISHED',
       });
 
