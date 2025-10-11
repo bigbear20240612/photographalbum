@@ -23,17 +23,45 @@ Value: Dl20scUf5VpRDBmxlqEPtlqv/+iJd8U5E+65qLqKf6I=
 
 请在 Vercel 项目设置中按以下方式配置：
 
-### 必需的环境变量
+### 🚨 重要：数据库 URL 配置
+
+**如果你使用的是 Vercel Postgres（集成方式）：**
+
+Vercel Postgres 会自动创建以下环境变量，你**不需要手动添加** DATABASE_URL：
+- `POSTGRES_URL`
+- `POSTGRES_PRISMA_URL`
+- `POSTGRES_URL_NON_POOLING`
+
+但你需要手动添加这两个变量来引用它们：
+
+| Key | Value | 说明 |
+|-----|-------|------|
+| `DATABASE_URL` | 从 Storage 标签页复制 `POSTGRES_PRISMA_URL` 的实际值 | Prisma 连接池 URL |
+| `DIRECT_URL` | 从 Storage 标签页复制 `POSTGRES_URL_NON_POOLING` 的实际值 | 直连 URL（用于迁移）|
+
+**获取实际数据库 URL 的步骤：**
+1. 进入 Vercel 项目的 **Storage** 标签页
+2. 点击你的 Postgres 数据库
+3. 点击 **.env.local** 标签
+4. 复制 `POSTGRES_PRISMA_URL=` 后面的完整 URL（以 `postgres://` 或 `postgresql://` 开头）
+5. 复制 `POSTGRES_URL_NON_POOLING=` 后面的完整 URL
+
+### 必需的环境变量（完整列表）
 
 | Key | Value | Environments |
 |-----|-------|--------------|
-| `DATABASE_URL` | `${POSTGRES_PRISMA_URL}` | ✅ Production, ✅ Preview |
-| `DIRECT_URL` | `${POSTGRES_URL_NON_POOLING}` | ✅ Production, ✅ Preview |
+| `DATABASE_URL` | `postgres://username:password@host/database?pgbouncer=true&connect_timeout=15` | ✅ Production, ✅ Preview |
+| `DIRECT_URL` | `postgres://username:password@host/database?connect_timeout=15` | ✅ Production, ✅ Preview |
 | `NEXTAUTH_SECRET` | `Dl20scUf5VpRDBmxlqEPtlqv/+iJd8U5E+65qLqKf6I=` | ✅ Production, ✅ Preview |
 | `NEXTAUTH_URL` | `https://photographalbum.vercel.app` | ✅ Production only |
 | `CLOUDINARY_CLOUD_NAME` | `dmolmq6dr` | ✅ Production, ✅ Preview |
 | `CLOUDINARY_API_KEY` | `639768862499573` | ✅ Production, ✅ Preview |
 | `CLOUDINARY_API_SECRET` | `jc1rYAQcZkt1ndtWrAdZyUgdzy8` | ✅ Production, ✅ Preview |
+
+⚠️ **注意：**
+- 不要使用 `${POSTGRES_PRISMA_URL}` 这样的语法，要使用实际的 URL 值
+- DATABASE_URL 应该是包含 `?pgbouncer=true` 的连接池 URL
+- DIRECT_URL 应该是不包含 `?pgbouncer=true` 的直连 URL
 
 ### Preview 环境的 NEXTAUTH_URL
 
@@ -44,15 +72,49 @@ Value: Dl20scUf5VpRDBmxlqEPtlqv/+iJd8U5E+65qLqKf6I=
 
 ## 📝 修复步骤
 
-### 步骤 1: 修复 NEXTAUTH_SECRET
+### 步骤 1: 获取正确的数据库 URL
 
-1. 进入 Vercel 项目设置: https://vercel.com/[你的用户名]/photographalbum/settings/environment-variables
-2. 找到 `NEXTAUTH_SECRET` 变量
-3. 点击 "Edit" (编辑)
-4. 将 Value 改为: `Dl20scUf5VpRDBmxlqEPtlqv/+iJd8U5E+65qLqKf6I=`（不要包含 NEXTAUTH_SECRET= 前缀）
+1. 进入 Vercel 项目的 **Storage** 标签页
+2. 点击你的 Postgres 数据库实例
+3. 点击 **.env.local** 标签或 **Quickstart** 标签
+4. 你会看到类似这样的内容：
+   ```
+   POSTGRES_URL="postgres://default:xxx@xxx-pooler.postgres.vercel-storage.com:5432/verceldb"
+   POSTGRES_PRISMA_URL="postgres://default:xxx@xxx-pooler.postgres.vercel-storage.com:5432/verceldb?pgbouncer=true&connect_timeout=15"
+   POSTGRES_URL_NON_POOLING="postgres://default:xxx@xxx.postgres.vercel-storage.com:5432/verceldb"
+   ```
+5. 复制这两个 URL 的实际值（不要复制变量名）：
+   - `POSTGRES_PRISMA_URL` 的值（包含 `?pgbouncer=true`）
+   - `POSTGRES_URL_NON_POOLING` 的值（不包含 `?pgbouncer=true`）
+
+### 步骤 2: 修复环境变量
+
+进入 Vercel 项目设置: https://vercel.com/[你的用户名]/photographalbum/settings/environment-variables
+
+**2.1 修复 DATABASE_URL：**
+1. 找到 `DATABASE_URL` 变量
+2. 点击 "Edit"
+3. 将 Value 改为你复制的 `POSTGRES_PRISMA_URL` 的实际值
+   - 应该类似：`postgres://default:xxx@xxx-pooler.postgres.vercel-storage.com:5432/verceldb?pgbouncer=true&connect_timeout=15`
+4. 确保勾选 ✅ Production 和 ✅ Preview
 5. 点击 "Save"
 
-### 步骤 2: 重新部署
+**2.2 修复 DIRECT_URL：**
+1. 找到 `DIRECT_URL` 变量
+2. 点击 "Edit"
+3. 将 Value 改为你复制的 `POSTGRES_URL_NON_POOLING` 的实际值
+   - 应该类似：`postgres://default:xxx@xxx.postgres.vercel-storage.com:5432/verceldb`
+4. 确保勾选 ✅ Production 和 ✅ Preview
+5. 点击 "Save"
+
+**2.3 修复 NEXTAUTH_SECRET：**
+1. 找到 `NEXTAUTH_SECRET` 变量
+2. 点击 "Edit"
+3. 将 Value 改为: `Dl20scUf5VpRDBmxlqEPtlqv/+iJd8U5E+65qLqKf6I=`（不要包含 NEXTAUTH_SECRET= 前缀）
+4. 确保勾选 ✅ Production 和 ✅ Preview
+5. 点击 "Save"
+
+### 步骤 3: 重新部署
 
 修复环境变量后，需要重新部署：
 
@@ -68,7 +130,7 @@ git commit -m "fix: 修复数据库迁移配置"
 git push origin master
 ```
 
-### 步骤 3: 检查部署日志
+### 步骤 4: 检查部署日志
 
 1. 等待部署完成
 2. 查看构建日志，确认以下内容：
@@ -81,12 +143,36 @@ git push origin master
    - 点击 "Logs" 或 "Runtime Logs"
    - 检查是否有数据库连接错误或其他错误
 
-### 步骤 4: 测试注册功能
+### 步骤 5: 测试注册功能
 
 1. 访问 https://photographalbum.vercel.app/register
 2. 尝试注册新用户
 3. 如果仍然失败，查看浏览器控制台的网络请求
 4. 查看 Vercel 运行时日志获取详细错误信息
+
+### 📸 环境变量配置示例截图说明
+
+正确的环境变量配置应该是这样的：
+
+```
+Key: DATABASE_URL
+Value: postgres://default:AbC123XyZ@ep-xxx-pooler.postgres.vercel-storage.com:5432/verceldb?pgbouncer=true&connect_timeout=15
+Environments: ✅ Production ✅ Preview
+
+Key: DIRECT_URL
+Value: postgres://default:AbC123XyZ@ep-xxx.postgres.vercel-storage.com:5432/verceldb
+Environments: ✅ Production ✅ Preview
+
+Key: NEXTAUTH_SECRET
+Value: Dl20scUf5VpRDBmxlqEPtlqv/+iJd8U5E+65qLqKf6I=
+Environments: ✅ Production ✅ Preview
+```
+
+❌ **错误示例：**
+```
+DATABASE_URL = ${POSTGRES_PRISMA_URL}  ← 这样不会被解析
+NEXTAUTH_SECRET = NEXTAUTH_SECRET=Dl20sc... ← 不要包含变量名
+```
 
 ## 🔍 故障排查
 
