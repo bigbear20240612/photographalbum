@@ -21,10 +21,16 @@ export interface Album {
   title: string;
   description?: string;
   coverPhotoUrl?: string;
-  photoCount: number;
+  photoCount?: number;
   categoryTags?: string; // JSON string, not array
   createdAt: Date;
   updatedAt: Date;
+  // 可选的关联数据（从 API include 返回）
+  user?: Partial<User>;
+  photos?: Photo[];
+  _count?: {
+    photos: number;
+  };
 }
 
 // 照片类型
