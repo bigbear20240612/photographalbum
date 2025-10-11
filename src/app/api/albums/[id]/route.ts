@@ -5,10 +5,10 @@ import { prisma } from '@/lib/prisma';
 // GET /api/albums/[id] - 获取专辑详情
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: { id: string } }
 ) {
   try {
-    const { id } = await params;
+    const { id } = context.params;
 
     const album = await prisma.album.findUnique({
       where: { id },
@@ -75,7 +75,7 @@ export async function GET(
 // PUT /api/albums/[id] - 更新专辑
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: { id: string } }
 ) {
   try {
     const session = await auth();
@@ -87,7 +87,7 @@ export async function PUT(
       );
     }
 
-    const { id } = await params;
+    const { id } = context.params;
 
     // 检查专辑是否存在且属于当前用户
     const existingAlbum = await prisma.album.findUnique({
@@ -172,7 +172,7 @@ export async function PUT(
 // DELETE /api/albums/[id] - 删除专辑
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: { id: string } }
 ) {
   try {
     const session = await auth();
@@ -184,7 +184,7 @@ export async function DELETE(
       );
     }
 
-    const { id } = await params;
+    const { id } = context.params;
 
     // 检查专辑是否存在且属于当前用户
     const existingAlbum = await prisma.album.findUnique({

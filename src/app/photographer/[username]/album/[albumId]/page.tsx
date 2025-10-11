@@ -1,17 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Container from '@/components/layout/Container';
 import PhotoGrid from '@/components/features/PhotoGrid';
 import Lightbox from '@/components/features/Lightbox';
-import {
-  getUserByUsername,
-  getAlbumById,
-  getPhotosByAlbumId,
-} from '@/lib/mockData';
+import { userApi, albumApi } from '@/lib/apiService';
 import { formatDate } from '@/lib/utils';
+import type { User, Album, Photo } from '@/types';
 
 export default function AlbumPage() {
   const params = useParams();
@@ -21,10 +18,48 @@ export default function AlbumPage() {
 
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [album, setAlbum] = useState<Album | null>(null);
+  const [photos, setPhotos] = useState<Photo[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const user = getUserByUsername(username);
-  const album = getAlbumById(albumId);
-  const photos = getPhotosByAlbumId(albumId);
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        // 加载专辑信息（包含照片和用户信息）
+        const albumResponse = await albumApi.getAlbumById(albumId);
+        setAlbum(albumResponse.album);
+
+        // 从专辑响应中获取用户信息
+        if (albumResponse.album.user) {
+          setUser(albumResponse.album.user as any);
+        }
+
+        // 从专辑响应中获取照片列表
+        if (albumResponse.album.photos) {
+          setPhotos(albumResponse.album.photos as any);
+        }
+      } catch (error) {
+        console.error('加载数据失败:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (albumId) {
+      loadData();
+    }
+  }, [albumId]);
+
+  if (isLoading) {
+    return (
+      <Container>
+        <div className="py-20 text-center">
+          <p className="text-warm-gray">加载中...</p>
+        </div>
+      </Container>
+    );
+  }
 
   if (!user || !album) {
     return (
