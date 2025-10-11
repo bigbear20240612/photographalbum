@@ -49,14 +49,15 @@
 |---|-----|-------|-------------|
 | 1 | `DATABASE_URL` | `${POSTGRES_PRISMA_URL}` | ✅ Prod ✅ Preview |
 | 2 | `DIRECT_URL` | `${POSTGRES_URL_NON_POOLING}` | ✅ Prod ✅ Preview |
-| 3 | `NEXTAUTH_SECRET` | [生成密钥¹](#生成密钥) | ✅ Prod ✅ Preview |
+| 3 | `NEXTAUTH_SECRET` | NEXTAUTH_SECRET=Dl20scUf5VpRDBmxlqEPtlqv/+iJd8U5E+65qLqKf6I= | ✅ Prod ✅ Preview |
 | 4 | `NEXTAUTH_URL` | `https://photographalbum.vercel.app` | ✅ Prod only |
-| 5 | `CLOUDINARY_CLOUD_NAME` | [从Cloudinary复制²](#cloudinary) | ✅ Prod ✅ Preview |
-| 6 | `CLOUDINARY_API_KEY` | [从Cloudinary复制²](#cloudinary) | ✅ Prod ✅ Preview |
-| 7 | `CLOUDINARY_API_SECRET` | [从Cloudinary复制²](#cloudinary) | ✅ Prod ✅ Preview |
+| 5 | `CLOUDINARY_CLOUD_NAME` | [dmolmq6dr](#cloudinary) | ✅ Prod ✅ Preview |
+| 6 | `CLOUDINARY_API_KEY` | 639768862499573 | ✅ Prod ✅ Preview |
+| 7 | `CLOUDINARY_API_SECRET` | jc1rYAQcZkt1ndtWrAdZyUgdzy8 | ✅ Prod ✅ Preview |
 
 <a name="生成密钥"></a>
 **¹ 生成 NEXTAUTH_SECRET:**
+
 ```bash
 # 在终端运行
 openssl rand -base64 32

@@ -1,16 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-// GET /api/users/[username] - 获取用户公开信息
+// GET /api/users/[id] - 获取用户公开信息 (支持 ID 或 username)
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ username: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { username } = await params;
+    const { id } = await params;
 
-    const user = await prisma.user.findUnique({
-      where: { username },
+    // 尝试通过 ID 或 username 查找用户
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { id: id },
+          { username: id },
+        ],
+      },
       select: {
         id: true,
         username: true,
