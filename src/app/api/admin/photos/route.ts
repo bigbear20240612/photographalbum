@@ -4,6 +4,9 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+// 强制动态渲染
+export const dynamic = 'force-dynamic';
+
 /**
  * 获取照片列表 (管理员内容审核)
  * GET /api/admin/photos
