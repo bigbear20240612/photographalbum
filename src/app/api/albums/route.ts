@@ -42,6 +42,17 @@ export async function GET(request: NextRequest) {
               avatarUrl: true,
             },
           },
+          photos: {
+            select: {
+              id: true,
+              thumbnailUrl: true,
+              mediumUrl: true,
+            },
+            orderBy: {
+              sortOrder: 'asc',
+            },
+            take: 1, // 只获取第一张照片作为封面
+          },
           _count: {
             select: {
               photos: true,
@@ -58,9 +69,16 @@ export async function GET(request: NextRequest) {
       prisma.album.count({ where }),
     ]);
 
+    // 为每个专辑添加封面URL
+    const albumsWithCover = albums.map(album => ({
+      ...album,
+      coverPhotoUrl: album.photos[0]?.mediumUrl || album.photos[0]?.thumbnailUrl || '/images/placeholder-album.jpg',
+      photoCount: album._count.photos,
+    }));
+
     return NextResponse.json(
       {
-        albums,
+        albums: albumsWithCover,
         pagination: {
           total,
           page,
