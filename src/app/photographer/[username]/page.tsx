@@ -244,7 +244,7 @@ export default function PhotographerPage() {
             <AlbumGrid
               albums={albums}
               onAlbumClick={(album) =>
-                router.push(`/photographer/${username}/album/${(album as any).id}`)
+                router.push(`/photographer/${username}/album/${album.id}`)
               }
             />
           ) : (

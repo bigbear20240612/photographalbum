@@ -6,7 +6,7 @@ import { AlbumCard } from '../ui/Card';
 
 interface AlbumGridProps {
   albums: Album[];
-  onAlbumClick?: (albumId: string) => void;
+  onAlbumClick?: (album: Album) => void;
 }
 
 export default function AlbumGrid({ albums, onAlbumClick }: AlbumGridProps) {
@@ -28,7 +28,7 @@ export default function AlbumGrid({ albums, onAlbumClick }: AlbumGridProps) {
             coverUrl={album.coverPhotoUrl || ''}
             title={album.title}
             photoCount={album.photoCount ?? 0}
-            onClick={() => onAlbumClick?.(album.id)}
+            onClick={() => onAlbumClick?.(album)}
           />
         </div>
       ))}

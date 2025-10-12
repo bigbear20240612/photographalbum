@@ -156,9 +156,9 @@ export default function DiscoverPage() {
             albums={sortedAlbums}
             onAlbumClick={(album) => {
               // 需要找到专辑作者的username
-              const username = (album as any).user?.username;
+              const username = album.user?.username;
               if (username) {
-                router.push(`/photographer/${username}/album/${(album as any).id}`);
+                router.push(`/photographer/${username}/album/${album.id}`);
               }
             }}
           />
