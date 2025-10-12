@@ -63,7 +63,7 @@ export default function DiscoverPage() {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     } else {
       // 按热度排序(照片数量)
-      return b.photoCount - a.photoCount;
+      return (b.photoCount ?? 0) - (a.photoCount ?? 0);
     }
   });
 
