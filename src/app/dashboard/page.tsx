@@ -11,13 +11,16 @@ import { AlbumCard } from '@/components/ui/Card';
 import { albumApi, userApi, photoApi } from '@/lib/apiService';
 import type { Album, User, Photo } from '@/types';
 
+// 扩展 Photo 类型以包含专辑信息
+type PhotoWithAlbum = Photo & { album?: { title: string } };
+
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'albums' | 'photos'>('albums');
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [userAlbums, setUserAlbums] = useState<Album[]>([]);
-  const [userPhotos, setUserPhotos] = useState<Photo[]>([]);
+  const [userPhotos, setUserPhotos] = useState<PhotoWithAlbum[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [photosLoading, setPhotosLoading] = useState(false);
 
@@ -61,7 +64,7 @@ export default function DashboardPage() {
     setPhotosLoading(true);
     try {
       // 遍历用户所有专辑获取照片
-      const allPhotos: (Photo & { album?: { title: string } })[] = [];
+      const allPhotos: PhotoWithAlbum[] = [];
 
       for (const album of userAlbums) {
         const response = await fetch(`/api/albums/${album.id}`);
