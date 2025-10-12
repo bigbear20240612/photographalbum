@@ -62,7 +62,7 @@ export default function SearchContent() {
   };
 
   return (
-    <div className="min-h-screen py-12">
+    <div className="min-h-screen pt-8 pb-12">
       <Container>
         {/* Search Form */}
         <form onSubmit={handleSearch} className="mb-8">

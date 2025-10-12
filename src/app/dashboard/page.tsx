@@ -8,8 +8,8 @@ import toast from 'react-hot-toast';
 import Container from '@/components/layout/Container';
 import Button from '@/components/ui/Button';
 import { AlbumCard } from '@/components/ui/Card';
-import { albumApi, userApi } from '@/lib/apiService';
-import type { Album, User } from '@/types';
+import { albumApi, userApi, photoApi } from '@/lib/apiService';
+import type { Album, User, Photo } from '@/types';
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
@@ -17,7 +17,9 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<'albums' | 'photos'>('albums');
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [userAlbums, setUserAlbums] = useState<Album[]>([]);
+  const [userPhotos, setUserPhotos] = useState<Photo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [photosLoading, setPhotosLoading] = useState(false);
 
   // 检查登录状态
   useEffect(() => {
@@ -51,6 +53,34 @@ export default function DashboardPage() {
       setIsLoading(false);
     }
   };
+
+  // 加载用户所有照片
+  const loadUserPhotos = async () => {
+    if (!currentUser) return;
+
+    setPhotosLoading(true);
+    try {
+      // 获取用户所有专辑中的照片
+      const allPhotos: Photo[] = [];
+      for (const album of userAlbums) {
+        const photosResponse = await photoApi.getAlbumPhotos(album.id);
+        allPhotos.push(...photosResponse.photos);
+      }
+      setUserPhotos(allPhotos);
+    } catch (error: any) {
+      console.error('加载照片失败:', error);
+      toast.error('加载照片失败');
+    } finally {
+      setPhotosLoading(false);
+    }
+  };
+
+  // 当切换到照片标签时加载照片
+  useEffect(() => {
+    if (activeTab === 'photos' && userPhotos.length === 0 && !photosLoading) {
+      loadUserPhotos();
+    }
+  }, [activeTab]);
 
   if (status === 'loading' || isLoading) {
     return (
@@ -225,8 +255,75 @@ export default function DashboardPage() {
 
         {/* 照片列表 */}
         {activeTab === 'photos' && (
-          <div className="text-center py-16">
-            <p className="text-warm-gray">照片管理功能开发中...</p>
+          <div>
+            {photosLoading ? (
+              <div className="text-center py-16">
+                <p className="text-warm-gray">加载中...</p>
+              </div>
+            ) : userPhotos.length > 0 ? (
+              <>
+                <div className="flex justify-between items-center mb-6">
+                  <p className="text-warm-gray">
+                    共 {userPhotos.length} 张照片
+                  </p>
+                </div>
+
+                {/* 照片网格 */}
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                  {userPhotos.map((photo) => (
+                    <div key={photo.id} className="group relative aspect-square bg-warm-beige rounded-lg overflow-hidden cursor-pointer">
+                      <img
+                        src={photo.thumbnailUrl}
+                        alt={photo.title || ''}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-deep-charcoal/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="absolute bottom-0 left-0 right-0 p-3">
+                          {photo.title && (
+                            <p className="text-sm text-white font-medium line-clamp-1 mb-1">
+                              {photo.title}
+                            </p>
+                          )}
+                          <p className="text-xs text-white/80">
+                            {photo.album?.title || '未分类'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-16">
+                <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-warm-beige/50 flex items-center justify-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="48"
+                    height="48"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-warm-gray"
+                  >
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                    <circle cx="9" cy="9" r="2" />
+                    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold text-charcoal mb-2">
+                  还没有照片
+                </h3>
+                <p className="text-warm-gray mb-6">
+                  创建专辑并上传照片开始展示作品
+                </p>
+                <Link href="/dashboard/albums/create">
+                  <Button variant="primary">创建专辑</Button>
+                </Link>
+              </div>
+            )}
           </div>
         )}
       </Container>
