@@ -9,6 +9,20 @@
     "ask": []
   },
   "mcpServers": {
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["chrome-devtools-mcp@latest"],
+      "description": "Chrome DevTools MCP - 浏览器调试和性能分析"
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest",
+        "--browser", "chromium",
+        "--caps", "vision,pdf"
+      ],
+      "description": "Playwright MCP - 多浏览器自动化测试"
+    },
     "google-maps": {
       "command": "npx",
       "args": [
@@ -17,14 +31,16 @@
       ],
       "env": {
         "GOOGLE_MAPS_API_KEY": "YOUR_GOOGLE_MAPS_API_KEY_HERE"
-      }
+      },
+      "description": "Google Maps MCP - 地图和地理位置服务"
     },
     "google-maps-docs": {
       "command": "npx",
       "args": [
         "-y",
         "@googlemaps/code-assist-mcp@latest"
-      ]
+      ],
+      "description": "Google Maps 文档助手 - 官方文档和代码示例"
     }
   }
 }
