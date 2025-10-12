@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//d/data/CLAUDE_USE/记忆agent/**)",
+      "Bash(powershell:*)",
+      "Bash(echo $PROFILE)"
+    ],
+    "deny": [],
+    "ask": []
+  },
+  "mcpServers": {
+    "google-maps": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-google-maps"
+      ],
+      "env": {
+        "GOOGLE_MAPS_API_KEY": "YOUR_GOOGLE_MAPS_API_KEY_HERE"
+      }
+    },
+    "google-maps-docs": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@googlemaps/code-assist-mcp@latest"
+      ]
+    }
+  }
+}
