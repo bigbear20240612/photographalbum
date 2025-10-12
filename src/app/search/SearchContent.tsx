@@ -173,7 +173,7 @@ export default function SearchContent() {
                       </div>
                       <h3 className="font-medium text-charcoal mb-1">{album.title}</h3>
                       <p className="text-sm text-warm-gray">
-                        {album.user.displayName || album.user.username} · {album.photoCount} 张照片
+                        {album.user.displayName || album.user.username} · {album.photoCount ?? 0} 张照片
                       </p>
                     </Link>
                   ))}
