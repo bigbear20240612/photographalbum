@@ -60,12 +60,22 @@ export default function DashboardPage() {
 
     setPhotosLoading(true);
     try {
-      // 获取用户所有专辑中的照片
-      const allPhotos: Photo[] = [];
+      // 遍历用户所有专辑获取照片
+      const allPhotos: (Photo & { album?: { title: string } })[] = [];
+
       for (const album of userAlbums) {
-        const photosResponse = await photoApi.getAlbumPhotos(album.id);
-        allPhotos.push(...photosResponse.photos);
+        const response = await fetch(`/api/albums/${album.id}`);
+        if (response.ok) {
+          const data = await response.json();
+          // 为每张照片添加专辑信息
+          const photosWithAlbum = (data.album.photos || []).map((photo: Photo) => ({
+            ...photo,
+            album: { title: album.title }
+          }));
+          allPhotos.push(...photosWithAlbum);
+        }
       }
+
       setUserPhotos(allPhotos);
     } catch (error: any) {
       console.error('加载照片失败:', error);
