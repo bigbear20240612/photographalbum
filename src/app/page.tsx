@@ -1,11 +1,71 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import Container from '@/components/layout/Container';
 import Button from '@/components/ui/Button';
 import { AlbumCard } from '@/components/ui/Card';
-import { mockAlbums, mockUsers } from '@/lib/mockData';
+import { albumApi, userApi } from '@/lib/apiService';
+import type { Album } from '@/types';
+
+type AlbumWithUser = Album & {
+  user: {
+    id: string;
+    username: string;
+    displayName?: string | null;
+  };
+};
 
 export default function HomePage() {
-  const featuredAlbums = mockAlbums.slice(0, 6);
+  const { data: session } = useSession();
+  const [featuredAlbums, setFeaturedAlbums] = useState<AlbumWithUser[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentUsername, setCurrentUsername] = useState<string>('');
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        // 获取精选专辑（最新的6个公开专辑）
+        const albumsResponse = await albumApi.getAlbums({ limit: 6 });
+        setFeaturedAlbums(albumsResponse.albums as AlbumWithUser[]);
+
+        // 如果用户已登录，获取当前用户名
+        if (session) {
+          const userResponse = await userApi.getCurrentUser();
+          setCurrentUsername(userResponse.user.username);
+        }
+      } catch (error) {
+        console.error('加载数据失败:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, [session]);
+
+  // 获取示例用户链接（第一个有专辑的用户，或当前用户）
+  const getExampleUserLink = () => {
+    if (currentUsername) {
+      return `/photographer/${currentUsername}`;
+    }
+    if (featuredAlbums.length > 0) {
+      return `/photographer/${featuredAlbums[0].user.username}`;
+    }
+    return '/discover';
+  };
+
+  // 获取个人品牌链接
+  const getPersonalBrandLink = () => {
+    if (currentUsername) {
+      return `/photographer/${currentUsername}`;
+    }
+    if (featuredAlbums.length > 0) {
+      return `/photographer/${featuredAlbums[0].user.username}`;
+    }
+    return '/discover';
+  };
 
   return (
     <div className="min-h-screen">
@@ -24,16 +84,33 @@ export default function HomePage() {
               极简设计,突出作品,展现你的摄影艺术
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/register">
-                <Button variant="primary" size="large">
-                  立即开始
-                </Button>
-              </Link>
-              <Link href="/photographer/john_photographer">
-                <Button variant="secondary" size="large">
-                  查看示例
-                </Button>
-              </Link>
+              {session ? (
+                <>
+                  <Link href="/dashboard">
+                    <Button variant="primary" size="large">
+                      我的工作台
+                    </Button>
+                  </Link>
+                  <Link href={getExampleUserLink()}>
+                    <Button variant="secondary" size="large">
+                      我的主页
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link href="/register">
+                    <Button variant="primary" size="large">
+                      立即开始
+                    </Button>
+                  </Link>
+                  <Link href={getExampleUserLink()}>
+                    <Button variant="secondary" size="large">
+                      查看示例
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </Container>
@@ -82,7 +159,7 @@ export default function HomePage() {
             </Link>
 
             {/* Feature 2 - 专辑管理 */}
-            <Link href="/dashboard">
+            <Link href={session ? "/dashboard" : "/register"}>
               <div className="text-center p-8 cursor-pointer transition-all duration-300 hover:bg-warm-beige/30 rounded-2xl hover:shadow-glass-md hover:-translate-y-1">
                 <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-desert-gold to-sunset-orange flex items-center justify-center">
                   <svg
@@ -111,7 +188,7 @@ export default function HomePage() {
             </Link>
 
             {/* Feature 3 - 个人品牌 */}
-            <Link href="/photographer/john_photographer">
+            <Link href={getPersonalBrandLink()}>
               <div className="text-center p-8 cursor-pointer transition-all duration-300 hover:bg-warm-beige/30 rounded-2xl hover:shadow-glass-md hover:-translate-y-1">
                 <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-savanna-green to-earth-brown flex items-center justify-center">
                   <svg
@@ -153,52 +230,89 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredAlbums.map((album) => {
-              const user = mockUsers.find((u) => u.id === album.userId);
-              return (
-                <Link
-                  key={album.id}
-                  href={`/photographer/${user?.username}/album/${album.id}`}
-                >
-                  <AlbumCard
-                    coverUrl={album.coverPhotoUrl || ''}
-                    title={album.title}
-                    photoCount={album.photoCount ?? 0}
-                  />
-                </Link>
-              );
-            })}
-          </div>
+          {isLoading ? (
+            <div className="text-center py-16">
+              <p className="text-warm-gray">加载中...</p>
+            </div>
+          ) : featuredAlbums.length > 0 ? (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {featuredAlbums.map((album) => (
+                  <Link
+                    key={album.id}
+                    href={`/photographer/${album.user.username}/album/${album.id}`}
+                  >
+                    <AlbumCard
+                      coverUrl={album.coverPhotoUrl || ''}
+                      title={album.title}
+                      photoCount={album.photoCount ?? 0}
+                    />
+                  </Link>
+                ))}
+              </div>
 
-          <div className="text-center mt-12">
-            <Link href="/discover">
-              <Button variant="secondary" size="large">
-                探索更多作品
-              </Button>
-            </Link>
-          </div>
+              <div className="text-center mt-12">
+                <Link href="/discover">
+                  <Button variant="secondary" size="large">
+                    探索更多作品
+                  </Button>
+                </Link>
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-16">
+              <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-warm-beige/50 flex items-center justify-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="48"
+                  height="48"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-warm-gray"
+                >
+                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-charcoal mb-2">
+                暂无作品
+              </h3>
+              <p className="text-warm-gray mb-6">
+                成为第一个分享作品的摄影师
+              </p>
+              {!session && (
+                <Link href="/register">
+                  <Button variant="primary">立即注册</Button>
+                </Link>
+              )}
+            </div>
+          )}
         </Container>
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 md:py-24">
-        <Container>
-          <div className="max-w-3xl mx-auto text-center bg-gradient-to-br from-terra-cotta/10 to-amber-gold/10 rounded-3xl p-12 border border-terra-cotta/20">
-            <h2 className="font-serif text-3xl md:text-4xl font-semibold text-charcoal mb-4">
-              开始展示你的摄影作品
-            </h2>
-            <p className="text-lg text-warm-gray mb-8">
-              加入我们,创建属于你的在线摄影作品集
-            </p>
-            <Link href="/register">
-              <Button variant="primary" size="large">
-                免费注册
-              </Button>
-            </Link>
-          </div>
-        </Container>
-      </section>
+      {!session && (
+        <section className="py-16 md:py-24">
+          <Container>
+            <div className="max-w-3xl mx-auto text-center bg-gradient-to-br from-terra-cotta/10 to-amber-gold/10 rounded-3xl p-12 border border-terra-cotta/20">
+              <h2 className="font-serif text-3xl md:text-4xl font-semibold text-charcoal mb-4">
+                开始展示你的摄影作品
+              </h2>
+              <p className="text-lg text-warm-gray mb-8">
+                加入我们,创建属于你的在线摄影作品集
+              </p>
+              <Link href="/register">
+                <Button variant="primary" size="large">
+                  免费注册
+                </Button>
+              </Link>
+            </div>
+          </Container>
+        </section>
+      )}
     </div>
   );
 }
