@@ -52,85 +52,91 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Feature 1 */}
-            <div className="text-center p-8">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-terra-cotta to-amber-gold flex items-center justify-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="32"
-                  height="32"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="white"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                  <circle cx="9" cy="9" r="2" />
-                  <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-                </svg>
+            {/* Feature 1 - 画廊级展示 */}
+            <Link href="/discover">
+              <div className="text-center p-8 cursor-pointer transition-all duration-300 hover:bg-warm-beige/30 rounded-2xl hover:shadow-glass-md hover:-translate-y-1">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-terra-cotta to-amber-gold flex items-center justify-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="32"
+                    height="32"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="white"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                    <circle cx="9" cy="9" r="2" />
+                    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold text-charcoal mb-2">
+                  画廊级展示
+                </h3>
+                <p className="text-warm-gray">
+                  高质量图片展示,无压缩损失,保留作品细节
+                </p>
               </div>
-              <h3 className="text-xl font-semibold text-charcoal mb-2">
-                画廊级展示
-              </h3>
-              <p className="text-warm-gray">
-                高质量图片展示,无压缩损失,保留作品细节
-              </p>
-            </div>
+            </Link>
 
-            {/* Feature 2 */}
-            <div className="text-center p-8">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-desert-gold to-sunset-orange flex items-center justify-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="32"
-                  height="32"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="white"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-                  <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-                  <line x1="12" y1="22.08" x2="12" y2="12" />
-                </svg>
+            {/* Feature 2 - 专辑管理 */}
+            <Link href="/dashboard">
+              <div className="text-center p-8 cursor-pointer transition-all duration-300 hover:bg-warm-beige/30 rounded-2xl hover:shadow-glass-md hover:-translate-y-1">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-desert-gold to-sunset-orange flex items-center justify-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="32"
+                    height="32"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="white"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                    <line x1="12" y1="22.08" x2="12" y2="12" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold text-charcoal mb-2">
+                  专辑管理
+                </h3>
+                <p className="text-warm-gray">
+                  以专辑为单位组织作品,系统化展示你的创作
+                </p>
               </div>
-              <h3 className="text-xl font-semibold text-charcoal mb-2">
-                专辑管理
-              </h3>
-              <p className="text-warm-gray">
-                以专辑为单位组织作品,系统化展示你的创作
-              </p>
-            </div>
+            </Link>
 
-            {/* Feature 3 */}
-            <div className="text-center p-8">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-savanna-green to-earth-brown flex items-center justify-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="32"
-                  height="32"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="white"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
-                  <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-                </svg>
+            {/* Feature 3 - 个人品牌 */}
+            <Link href="/photographer/john_photographer">
+              <div className="text-center p-8 cursor-pointer transition-all duration-300 hover:bg-warm-beige/30 rounded-2xl hover:shadow-glass-md hover:-translate-y-1">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-savanna-green to-earth-brown flex items-center justify-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="32"
+                    height="32"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="white"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold text-charcoal mb-2">
+                  个人品牌
+                </h3>
+                <p className="text-warm-gray">
+                  独立的个人主页,专业的视觉呈现,提升品牌形象
+                </p>
               </div>
-              <h3 className="text-xl font-semibold text-charcoal mb-2">
-                个人品牌
-              </h3>
-              <p className="text-warm-gray">
-                独立的个人主页,专业的视觉呈现,提升品牌形象
-              </p>
-            </div>
+            </Link>
           </div>
         </Container>
       </section>
