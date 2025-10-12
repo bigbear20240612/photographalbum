@@ -4,17 +4,31 @@ export function cn(...inputs: ClassValue[]) {
   return clsx(inputs);
 }
 
-export function formatDate(date: Date): string {
+export function formatDate(date: Date | string): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+
+  // 检查日期是否有效
+  if (isNaN(dateObj.getTime())) {
+    return '日期无效';
+  }
+
   return new Intl.DateTimeFormat('zh-CN', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  }).format(date);
+  }).format(dateObj);
 }
 
-export function formatRelativeTime(date: Date): string {
+export function formatRelativeTime(date: Date | string): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+
+  // 检查日期是否有效
+  if (isNaN(dateObj.getTime())) {
+    return '日期无效';
+  }
+
   const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  const diffInSeconds = Math.floor((now.getTime() - dateObj.getTime()) / 1000);
 
   if (diffInSeconds < 60) {
     return '刚刚';
@@ -28,6 +42,6 @@ export function formatRelativeTime(date: Date): string {
     const days = Math.floor(diffInSeconds / 86400);
     return `${days} 天前`;
   } else {
-    return formatDate(date);
+    return formatDate(dateObj);
   }
 }
