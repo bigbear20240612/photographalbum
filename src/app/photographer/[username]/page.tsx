@@ -2,9 +2,11 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import Container from '@/components/layout/Container';
 import AlbumGrid from '@/components/features/AlbumGrid';
 import FollowButton from '@/components/ui/FollowButton';
+import Button from '@/components/ui/Button';
 import { userApi, albumApi } from '@/lib/apiService';
 import type { User, Album } from '@/types';
 
@@ -12,12 +14,16 @@ export default function PhotographerPage() {
   const params = useParams();
   const router = useRouter();
   const username = params.username as string;
+  const { data: session } = useSession();
 
   const [user, setUser] = useState<User | null>(null);
   const [albums, setAlbums] = useState<Album[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
+
+  // 检查是否是查看自己的页面
+  const isOwnProfile = session?.user?.username === username;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -109,9 +115,9 @@ export default function PhotographerPage() {
             </div>
           </div>
 
-          {/* Follow Button */}
-          {user.id && (
-            <div className="mb-6">
+          {/* Action Buttons */}
+          {user.id && !isOwnProfile && (
+            <div className="flex items-center justify-center gap-3 mb-6">
               <FollowButton
                 userId={user.id}
                 onFollowChange={(isFollowing) => {
@@ -119,6 +125,27 @@ export default function PhotographerPage() {
                   setFollowerCount(prev => isFollowing ? prev + 1 : prev - 1);
                 }}
               />
+              <Button
+                variant="secondary"
+                size="medium"
+                onClick={() => router.push(`/messages/${username}`)}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="mr-2"
+                >
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+                发私信
+              </Button>
             </div>
           )}
 

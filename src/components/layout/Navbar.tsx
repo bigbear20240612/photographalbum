@@ -7,13 +7,14 @@ import { cn } from '@/lib/utils';
 import Container from './Container';
 import Button from '../ui/Button';
 import { useToast } from '../ui/Toast';
-import { notificationApi } from '@/lib/apiService';
+import { notificationApi, messageApi } from '@/lib/apiService';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadMessageCount, setUnreadMessageCount] = useState(0);
   const { data: session, status } = useSession();
   const { showToast } = useToast();
   const isAuthenticated = status === 'authenticated';
@@ -34,6 +35,26 @@ export default function Navbar() {
 
       // 每30秒更新一次
       const interval = setInterval(fetchUnreadCount, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated]);
+
+  // 获取未读消息数量
+  useEffect(() => {
+    if (isAuthenticated) {
+      const fetchUnreadMessageCount = async () => {
+        try {
+          const response = await messageApi.getUnreadCount();
+          setUnreadMessageCount(response.unreadCount);
+        } catch (error) {
+          console.error('获取未读消息数量失败:', error);
+        }
+      };
+
+      fetchUnreadMessageCount();
+
+      // 每30秒更新一次
+      const interval = setInterval(fetchUnreadMessageCount, 30000);
       return () => clearInterval(interval);
     }
   }, [isAuthenticated]);
@@ -112,6 +133,31 @@ export default function Navbar() {
             <div className="flex items-center gap-3">
               {isAuthenticated ? (
                 <>
+                  {/* Messages Icon */}
+                  <Link
+                    href="/messages"
+                    className="relative p-2 rounded-lg hover:bg-soft-white/50 transition-colors"
+                  >
+                    <svg
+                      className="w-6 h-6 text-warm-gray hover:text-terra-cotta transition-colors"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                      />
+                    </svg>
+                    {unreadMessageCount > 0 && (
+                      <span className="absolute top-1 right-1 w-5 h-5 bg-terra-cotta text-white text-xs font-medium rounded-full flex items-center justify-center">
+                        {unreadMessageCount > 9 ? '9+' : unreadMessageCount}
+                      </span>
+                    )}
+                  </Link>
+
                   {/* Notification Bell */}
                   <Link
                     href="/notifications"
@@ -248,7 +294,7 @@ export default function Navbar() {
         <div className="flex justify-around items-center">
           <Link
             href="/"
-            className="flex flex-col items-center gap-1 px-4 py-2 text-light-gray hover:text-terra-cotta transition-colors"
+            className="flex flex-col items-center gap-1 px-3 py-2 text-light-gray hover:text-terra-cotta transition-colors"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -269,7 +315,7 @@ export default function Navbar() {
 
           <Link
             href="/discover"
-            className="flex flex-col items-center gap-1 px-4 py-2 text-light-gray hover:text-terra-cotta transition-colors"
+            className="flex flex-col items-center gap-1 px-3 py-2 text-light-gray hover:text-terra-cotta transition-colors"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -289,14 +335,40 @@ export default function Navbar() {
           </Link>
 
           {isAuthenticated ? (
-            <Link
-              href="/dashboard"
-              className="flex flex-col items-center gap-1 px-4 py-2 text-light-gray hover:text-terra-cotta transition-colors"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
+            <>
+              <Link
+                href="/messages"
+                className="relative flex flex-col items-center gap-1 px-3 py-2 text-light-gray hover:text-terra-cotta transition-colors"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+                {unreadMessageCount > 0 && (
+                  <span className="absolute top-1 right-2 w-4 h-4 bg-terra-cotta text-white text-xs font-medium rounded-full flex items-center justify-center">
+                    {unreadMessageCount > 9 ? '9+' : unreadMessageCount}
+                  </span>
+                )}
+                <span className="text-xs font-medium">消息</span>
+              </Link>
+
+              <Link
+                href="/dashboard"
+                className="flex flex-col items-center gap-1 px-3 py-2 text-light-gray hover:text-terra-cotta transition-colors"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -311,10 +383,11 @@ export default function Navbar() {
               </svg>
               <span className="text-xs font-medium">工作台</span>
             </Link>
+            </>
           ) : (
             <Link
               href="/login"
-              className="flex flex-col items-center gap-1 px-4 py-2 text-light-gray hover:text-terra-cotta transition-colors"
+              className="flex flex-col items-center gap-1 px-3 py-2 text-light-gray hover:text-terra-cotta transition-colors"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

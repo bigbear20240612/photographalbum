@@ -339,7 +339,7 @@ export const followApi = {
 export interface Notification {
   id: string;
   userId: string;
-  type: 'LIKE' | 'COMMENT' | 'FOLLOW' | 'SYSTEM';
+  type: 'LIKE' | 'COMMENT' | 'FOLLOW' | 'SYSTEM' | 'MESSAGE';
   title: string;
   content: string;
   data?: string;
@@ -378,6 +378,90 @@ export const notificationApi = {
   // 批量删除通知
   deleteMultipleNotifications: (notificationIds: string[]) =>
     del<{ message: string; count: number }>(`/notifications?ids=${notificationIds.join(',')}`),
+};
+
+// ==================== 消息相关 ====================
+
+// 消息相关类型
+export interface Message {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  receiverId: string;
+  content: string;
+  read: boolean;
+  createdAt: string;
+  updatedAt: string;
+  sender: {
+    id: string;
+    username: string;
+    displayName: string;
+    avatarUrl?: string;
+  };
+}
+
+export interface Conversation {
+  id: string;
+  otherUser: {
+    id: string;
+    username: string;
+    displayName: string;
+    avatarUrl?: string;
+  };
+  lastMessage: {
+    id: string;
+    content: string;
+    read: boolean;
+    senderId: string;
+    receiverId: string;
+    createdAt: string;
+  } | null;
+  unreadCount: number;
+  lastMessageAt: string | null;
+  createdAt: string;
+}
+
+export interface SendMessageData {
+  receiverId: string;
+  content: string;
+}
+
+export interface MessagesResponse {
+  messages: Message[];
+  hasMore: boolean;
+  conversationId: string;
+}
+
+export interface ConversationsResponse {
+  conversations: Conversation[];
+}
+
+export interface UnreadCountResponse {
+  unreadCount: number;
+}
+
+export const messageApi = {
+  // 获取对话列表
+  getConversations: () =>
+    get<ConversationsResponse>('/conversations'),
+
+  // 创建或获取与指定用户的对话
+  getOrCreateConversation: (otherUserId: string) =>
+    post<{ conversation: { id: string; otherUser: any } }>('/conversations', { otherUserId }),
+
+  // 获取对话中的消息
+  getMessages: (params: { conversationId?: string; otherUserId?: string; limit?: number; offset?: number }) => {
+    const queryString = new URLSearchParams(params as any).toString();
+    return get<MessagesResponse>(`/messages?${queryString}`);
+  },
+
+  // 发送消息
+  sendMessage: (data: SendMessageData) =>
+    post<{ message: Message; conversationId: string }>('/messages', data),
+
+  // 获取未读消息总数
+  getUnreadCount: () =>
+    get<UnreadCountResponse>('/messages/unread'),
 };
 
 // ==================== 搜索相关 ====================

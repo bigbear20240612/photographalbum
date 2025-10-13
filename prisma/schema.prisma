@@ -57,6 +57,9 @@ model User {
   followers       Follow[]       @relation("Following")
   following       Follow[]       @relation("Follower")
   notifications   Notification[]
+  sentMessages    Message[]      @relation("SentMessages")
+  receivedMessages Message[]     @relation("ReceivedMessages")
+  conversations   Conversation[] @relation("UserConversations")
 
   @@map("users")
 }
@@ -264,7 +267,7 @@ model Follow {
 model Notification {
   id        String   @id @default(cuid())
   userId    String   @map("user_id")
-  type      String   // LIKE, COMMENT, FOLLOW, SYSTEM
+  type      String   // LIKE, COMMENT, FOLLOW, SYSTEM, MESSAGE
   title     String
   content   String
   data      String?  // JSON string
@@ -274,4 +277,41 @@ model Notification {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
+}
+
+// ========================================
+// 私信功能模型 (V1.1)
+// ========================================
+
+model Conversation {
+  id               String    @id @default(cuid())
+  participant1Id   String    @map("participant1_id")
+  participant2Id   String    @map("participant2_id")
+  lastMessageId    String?   @map("last_message_id")
+  lastMessageAt    DateTime? @map("last_message_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  participant1 User      @relation("UserConversations", fields: [participant1Id], references: [id], onDelete: Cascade)
+  messages     Message[]
+
+  @@unique([participant1Id, participant2Id])
+  @@map("conversations")
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String       @map("conversation_id")
+  senderId       String       @map("sender_id")
+  receiverId     String       @map("receiver_id")
+  content        String
+  read           Boolean      @default(false)
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver     User         @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
 }
