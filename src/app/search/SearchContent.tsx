@@ -62,7 +62,7 @@ export default function SearchContent() {
   };
 
   return (
-    <div className="min-h-screen pt-8 pb-12">
+    <div className="min-h-screen pt-24 md:pt-28 pb-12 md:pb-16">
       <Container>
         {/* Search Form */}
         <form onSubmit={handleSearch} className="mb-8">
