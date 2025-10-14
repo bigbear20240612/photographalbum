@@ -2,10 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import Container from '@/components/layout/Container';
 import PhotoGrid from '@/components/features/PhotoGrid';
 import Lightbox from '@/components/features/Lightbox';
+import FollowButton from '@/components/ui/FollowButton';
+import Button from '@/components/ui/Button';
 import { userApi, albumApi } from '@/lib/apiService';
 import { formatDate } from '@/lib/utils';
 import type { User, Album, Photo } from '@/types';
@@ -13,6 +16,7 @@ import type { User, Album, Photo } from '@/types';
 export default function AlbumPage() {
   const params = useParams();
   const router = useRouter();
+  const { data: session } = useSession();
   const username = params.username as string;
   const albumId = params.albumId as string;
 
@@ -22,6 +26,10 @@ export default function AlbumPage() {
   const [album, setAlbum] = useState<Album | null>(null);
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [followerCount, setFollowerCount] = useState(0);
+
+  // 检查是否是查看自己的专辑
+  const isOwnAlbum = session?.user?.username === username;
 
   useEffect(() => {
     const loadData = async () => {
@@ -33,6 +41,17 @@ export default function AlbumPage() {
         // 从专辑响应中获取用户信息
         if (albumResponse.album.user) {
           setUser(albumResponse.album.user as any);
+
+          // 获取关注统计
+          if (albumResponse.album.user.id) {
+            try {
+              const followApi = await import('@/lib/apiService').then(m => m.followApi);
+              const followStatus = await followApi.getFollowStatus(albumResponse.album.user.id);
+              setFollowerCount(followStatus.followerCount);
+            } catch (error) {
+              console.error('获取关注统计失败:', error);
+            }
+          }
         }
 
         // 从专辑响应中获取照片列表
@@ -105,6 +124,66 @@ export default function AlbumPage() {
               </svg>
               <span>返回 {user.displayName || user.username}</span>
             </Link>
+          </div>
+
+          {/* User Info Card */}
+          <div className="flex items-center justify-center gap-4 mb-8">
+            {/* User Avatar */}
+            <Link href={`/photographer/${username}`}>
+              <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-md hover:scale-105 transition-transform cursor-pointer">
+                <img
+                  src={user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.username)}&size=128&background=random`}
+                  alt={user.displayName || user.username}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </Link>
+
+            {/* User Info and Actions */}
+            <div className="flex flex-col items-start">
+              <Link
+                href={`/photographer/${username}`}
+                className="text-lg font-semibold text-charcoal hover:text-terra-cotta transition-colors"
+              >
+                {user.displayName || user.username}
+              </Link>
+              <div className="flex items-center gap-2 text-sm text-warm-gray">
+                <span>{followerCount} 关注者</span>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            {user.id && !isOwnAlbum && (
+              <div className="flex items-center gap-2 ml-4">
+                <FollowButton
+                  userId={user.id}
+                  onFollowChange={(isFollowing) => {
+                    setFollowerCount(prev => isFollowing ? prev + 1 : prev - 1);
+                  }}
+                />
+                <Button
+                  variant="secondary"
+                  size="small"
+                  onClick={() => router.push(`/messages/${username}`)}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="mr-1"
+                  >
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
+                  私信
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Album Header */}
