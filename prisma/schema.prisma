@@ -59,7 +59,6 @@ model User {
   notifications   Notification[]
   sentMessages    Message[]      @relation("SentMessages")
   receivedMessages Message[]     @relation("ReceivedMessages")
-  conversations   Conversation[] @relation("UserConversations")
 
   @@map("users")
 }
@@ -292,7 +291,6 @@ model Conversation {
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @updatedAt @map("updated_at")
 
-  participant1 User      @relation("UserConversations", fields: [participant1Id], references: [id], onDelete: Cascade)
   messages     Message[]
 
   @@unique([participant1Id, participant2Id])

@@ -25,14 +25,6 @@ export async function GET(req: NextRequest) {
         ],
       },
       include: {
-        participant1: {
-          select: {
-            id: true,
-            username: true,
-            displayName: true,
-            avatarUrl: true,
-          },
-        },
         messages: {
           orderBy: { createdAt: 'desc' },
           take: 1,

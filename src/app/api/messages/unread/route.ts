@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 
+// 强制动态渲染
+export const dynamic = 'force-dynamic';
+
 // GET /api/messages/unread - 获取未读消息总数
 export async function GET(req: NextRequest) {
   try {
