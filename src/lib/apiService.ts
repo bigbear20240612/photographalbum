@@ -681,3 +681,59 @@ export const adminApi = {
       };
     }>('/admin/stats'),
 };
+
+// ==================== 收藏功能相关 ====================
+
+export interface FavoriteStatusResponse {
+  success: boolean;
+  isFavorited: boolean;
+}
+
+export interface FavoriteToggleResponse {
+  success: boolean;
+  isFavorited: boolean;
+  message: string;
+}
+
+export interface FavoritesListResponse {
+  success: boolean;
+  favorites: Array<{
+    id: string;
+    userId: string;
+    photoId: string | null;
+    albumId: string | null;
+    createdAt: string;
+    photo?: Photo & {
+      user: User;
+      album?: { id: string; title: string };
+    };
+    album?: Album & {
+      user: User;
+      _count: { photos: number };
+    };
+  }>;
+}
+
+export const favoriteApi = {
+  // 检查照片收藏状态
+  checkPhotoFavorite: (photoId: string) =>
+    get<FavoriteStatusResponse>(`/photos/${photoId}/favorite`),
+
+  // 切换照片收藏状态
+  togglePhotoFavorite: (photoId: string) =>
+    post<FavoriteToggleResponse>(`/photos/${photoId}/favorite`),
+
+  // 检查专辑收藏状态
+  checkAlbumFavorite: (albumId: string) =>
+    get<FavoriteStatusResponse>(`/albums/${albumId}/favorite`),
+
+  // 切换专辑收藏状态
+  toggleAlbumFavorite: (albumId: string) =>
+    post<FavoriteToggleResponse>(`/albums/${albumId}/favorite`),
+
+  // 获取收藏列表
+  getFavorites: (type?: 'photo' | 'album') => {
+    const url = type ? `/favorites?type=${type}` : '/favorites';
+    return get<FavoritesListResponse>(url);
+  },
+};

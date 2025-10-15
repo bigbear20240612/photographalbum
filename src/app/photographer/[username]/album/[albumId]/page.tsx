@@ -8,6 +8,7 @@ import Container from '@/components/layout/Container';
 import PhotoGrid from '@/components/features/PhotoGrid';
 import Lightbox from '@/components/features/Lightbox';
 import FollowButton from '@/components/ui/FollowButton';
+import FavoriteButton from '@/components/ui/FavoriteButton';
 import Button from '@/components/ui/Button';
 import { userApi, albumApi } from '@/lib/apiService';
 import { formatDate } from '@/lib/utils';
@@ -188,9 +189,12 @@ export default function AlbumPage() {
 
           {/* Album Header */}
           <div className="text-center mb-12 max-w-3xl mx-auto">
-            <h1 className="font-serif text-4xl md:text-5xl font-semibold text-charcoal mb-4">
-              {album.title}
-            </h1>
+            <div className="flex items-center justify-center gap-4 mb-4">
+              <h1 className="font-serif text-4xl md:text-5xl font-semibold text-charcoal">
+                {album.title}
+              </h1>
+              <FavoriteButton albumId={album.id} />
+            </div>
 
             {album.description && (
               <p className="text-lg text-warm-gray leading-relaxed mb-6">

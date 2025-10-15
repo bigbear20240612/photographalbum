@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Photo } from '@/types';
 import { cn } from '@/lib/utils';
 import LikeButton from '../ui/LikeButton';
+import FavoriteButton from '../ui/FavoriteButton';
 import CommentSection from '../ui/CommentSection';
 
 interface LightboxProps {
@@ -212,9 +213,10 @@ export default function Lightbox({
         <div className="p-6 md:p-8">
           {!showComments ? (
             <div className="space-y-6">
-              {/* Like Button */}
-              <div>
+              {/* Like & Favorite Buttons */}
+              <div className="flex items-center gap-3">
                 <LikeButton photoId={currentPhoto.id} />
+                <FavoriteButton photoId={currentPhoto.id} showLabel />
               </div>
 
               {/* Title */}
